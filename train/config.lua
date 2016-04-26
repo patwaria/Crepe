@@ -22,7 +22,7 @@ config.val_data = {}
 config.val_data.file =  paths.concat(paths.cwd(), "../data/test.t7b")
 config.val_data.alphabet = alphabet
 config.val_data.length = 1014
-config.val_data.batch_size = 128
+config.val_data.batch_size = 1014
 
 -- The model
 config.model = {}
@@ -58,7 +58,14 @@ config.model[20] = {module = "nn.Linear", inputSize = 1024, outputSize = 1024}
 config.model[21] = {module = "nn.Threshold"}
 config.model[22] = {module = "nn.Dropout", p = 0.5}
 -- 1024
-config.model[23] = {module = "nn.Linear", inputSize = 1024, outputSize = 14}
+
+-- AYUSH prev settings
+-- DBPedia output classes = 14
+--config.model[23] = {module = "nn.Linear", inputSize = 1024, outputSize = 14}
+-- Amazon full review classes = 5
+config.model[23] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+
+
 config.model[24] = {module = "nn.LogSoftMax"}
 
 -- The loss
@@ -83,9 +90,10 @@ config.mui.n = 16
 
 -- Main program
 config.main = {}
-config.main.type = "torch.CudaTensor"
+-- config.main.type = "torch.CudaTensor"
+config.main.type = "torch.FloatTensor"
 config.main.eras = 10
-config.main.epoches = 5000
+config.main.epoches = 50
 config.main.randomize = 5e-2
 config.main.dropout = true
 config.main.save = paths.concat(paths.cwd())
@@ -93,5 +101,5 @@ config.main.details = true
 config.main.device = 1
 config.main.collectgarbage = 100
 config.main.logtime = 5
-config.main.debug = false
+config.main.debug = true
 config.main.test = true

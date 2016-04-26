@@ -14,14 +14,21 @@ ffi = require("ffi")
 config = {}
 config.input = "train.csv"
 config.output = "train.t7b"
+config.class_size = 0 -- use all available data
 
 -- Parse arguments
 cmd = torch.CmdLine()
 cmd:option("-input", config.input, "Input csv file")
 cmd:option("-output", config.output, "Output t7b file")
+
+-- AYUSH params added
+cmd:option("-class_size", config.class_size, "Class Size")
+
 params = cmd:parse(arg)
 config.input = params.input
 config.output = params.output
+config.class_size = params.class_size
+print (config.class_size)
 
 -- Check file existence
 if not paths.filep(config.input) then
@@ -125,6 +132,12 @@ for key, val in pairs(count) do
       max_class = key
    end
 end
+
+-- AYUSH edit
+-- restrict max classes for now
+--max_class = 2
+
+
 print("Number of classes: "..max_class)
 for class = 1, max_class do
    if count[class] == nil or count[class] == 0 then
@@ -149,8 +162,19 @@ for line in fd:lines() do
    n = n + 1
    local content = ParseCSVLine(line)
    local class = tonumber(content[1])
+
+   -- AYUSH EDIT
+   --if class > max_class then
+	   --break
+   --end
+
+       --if config.class_size > 0 then
+           --if progress[class] > config.class_size then
+			--goto continue
+		--end 
+	--end
    progress[class] = progress[class] + 1
-   
+
    for i = 2, #content do
       content[i] = content[i]:gsub("\\n", "\n"):gsub("^%s*(.-)%s*$", "%1")
       data.index[class][progress[class]][i-1] = index
@@ -158,13 +182,14 @@ for line in fd:lines() do
       ffi.copy(torch.data(data.content:narrow(1, index, content[i]:len() + 1)), content[i])
       index = index + content[i]:len() + 1
    end
-
+	::continue::
    if math.fmod(n, 10000) == 0 then
       io.write("\rProcessing line "..n)
       io.flush()
       collectgarbage()
    end
 end
+
 fd:close()
 collectgarbage()
 print("\rNumber of lines processed: "..n)
